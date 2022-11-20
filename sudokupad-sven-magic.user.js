@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         SudokuPad Sven Magic
 // @namespace    http://tampermonkey.net/
-// @version      0.1
+// @version      0.2
 // @description  Add a button that resolves all singles in SudokuPad
 // @author       Chameleon
 // @updateURL    https://github.com/yusitnikov/sudokupad-sven-magic/raw/main/sudokupad-sven-magic.user.js
@@ -90,6 +90,8 @@ window.addEventListener('DOMContentLoaded', () => {
             for (const digit of digits) {
                 app.act({type: 'candidates', arg: digit});
             }
+
+            cleanUp();
         });
 
         const doMagic = () => transaction(() => {
