@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         SudokuPad Sven Magic
 // @namespace    http://tampermonkey.net/
-// @version      0.2
+// @version      0.3
 // @description  Add a button that resolves all singles in SudokuPad
 // @author       Chameleon
 // @updateURL    https://github.com/yusitnikov/sudokupad-sven-magic/raw/main/sudokupad-sven-magic.user.js
@@ -86,7 +86,7 @@ window.addEventListener('DOMContentLoaded', () => {
             const emptyCell = cells.find(cell => !cell.given && !cell.value);
             const digits = [...new Set(cells.flatMap(cell => [cell.given, cell.value, ...cell.candidates, ...cell.pencilmarks]).filter(Boolean))];
 
-            select(cells.filter(cell => !cell.candidates.length));
+            select(cells.filter(cell => !cell.candidates.length && !cell.pen.some(p => p[0] === 't')));
             for (const digit of digits) {
                 app.act({type: 'candidates', arg: digit});
             }
