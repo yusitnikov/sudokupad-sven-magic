@@ -83,6 +83,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
         const markAll = () => transaction(() => {
             const cells = app.grid.getCellList();
+            const {selectedCells} = app.puzzle;
             const emptyCell = cells.find(cell => !cell.given && !cell.value);
             const digits = [
                 ...new Set(cells.flatMap(cell => {
@@ -92,7 +93,12 @@ window.addEventListener('DOMContentLoaded', () => {
                     .filter(Boolean))
             ];
 
-            select(cells.filter(cell => !cell.candidates.length && !cell.pen.some(p => p[0] === 't')));
+            const isFillableCell = cell => !cell.given && !cell.value && !cell.candidates.length && !cell.pen.some(p => p[0] === 't');
+            let fillableCells = selectedCells.filter(isFillableCell);
+            if (!fillableCells.length) {
+                fillableCells = cells.filter(isFillableCell);
+            }
+            select(fillableCells);
             for (const digit of digits) {
                 app.act({type: 'candidates', arg: digit});
             }
