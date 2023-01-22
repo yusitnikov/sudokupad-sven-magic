@@ -84,7 +84,13 @@ window.addEventListener('DOMContentLoaded', () => {
         const markAll = () => transaction(() => {
             const cells = app.grid.getCellList();
             const emptyCell = cells.find(cell => !cell.given && !cell.value);
-            const digits = [...new Set(cells.flatMap(cell => [cell.given, cell.value, ...cell.candidates, ...cell.pencilmarks]).filter(Boolean))];
+            const digits = [
+                ...new Set(cells.flatMap(cell => {
+                    const value = cell.given ?? cell.value ?? undefined;
+                    return value !== undefined ? [value] : [...cell.candidates, ...cell.pencilmarks];
+                })
+                    .filter(Boolean))
+            ];
 
             select(cells.filter(cell => !cell.candidates.length && !cell.pen.some(p => p[0] === 't')));
             for (const digit of digits) {
