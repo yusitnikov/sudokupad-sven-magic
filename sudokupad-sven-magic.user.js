@@ -55,12 +55,12 @@ window.addEventListener('DOMContentLoaded', () => {
             }
         };
 
-        const cleanUp = () => transaction(() => {
+        const cleanUp = (applyToCells = app.grid.getCellList()) => transaction(() => {
             const conflicts = app.puzzle.check(['pencilmarks']);
 
             for (const {prop, cells, val} of conflicts) {
                 const type = prop === 'centre' ? 'candidates' : 'pencilmarks';
-                select(cells.filter(cell => cell[type].includes(val)));
+                select(cells.filter(cell => applyToCells.includes(cell) && cell[type].includes(val)));
                 app.act({type, arg: val});
             }
 
@@ -83,7 +83,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
         const markAll = () => transaction(() => {
             const cells = app.grid.getCellList();
-            const {selectedCells} = app.puzzle;
+            const selectedCells = [...app.puzzle.selectedCells];
             const emptyCell = cells.find(cell => !cell.given && !cell.value);
             const digits = [
                 ...new Set(cells.flatMap(cell => {
@@ -95,7 +95,8 @@ window.addEventListener('DOMContentLoaded', () => {
 
             const isFillableCell = cell => !cell.given && !cell.value && !cell.candidates.length && !cell.pen.some(p => p[0] === 't');
             let fillableCells = selectedCells.filter(isFillableCell);
-            if (!fillableCells.length) {
+            const isUsingSelectedCells = fillableCells.length !== 0;
+            if (!isUsingSelectedCells) {
                 fillableCells = cells.filter(isFillableCell);
             }
             select(fillableCells);
@@ -103,7 +104,7 @@ window.addEventListener('DOMContentLoaded', () => {
                 app.act({type: 'candidates', arg: digit});
             }
 
-            cleanUp();
+            cleanUp(isUsingSelectedCells ? selectedCells : cells);
         });
 
         const doMagic = () => transaction(() => {
