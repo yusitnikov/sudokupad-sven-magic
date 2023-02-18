@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         SudokuPad Sven Magic
 // @namespace    http://tampermonkey.net/
-// @version      0.5
+// @version      0.6
 // @description  Add a button that resolves all singles in SudokuPad
 // @author       Chameleon
 // @updateURL    https://github.com/yusitnikov/sudokupad-sven-magic/raw/main/sudokupad-sven-magic.user.js
@@ -119,11 +119,9 @@ window.addEventListener('DOMContentLoaded', () => {
 
 
         const createButton = (title, onClick, options = {}) => {
-            options = {...styles, ...options};
-
             const sven2 = document.createElement('div');
             for (const key of ['width', 'height', 'background', 'backgroundImage', 'position', 'zIndex']) {
-                sven2.style[key] = options[key];
+                sven2.style[key] = options[key] = options[key] ?? styles[key];
             }
             sven2.style.bottom = sven2.style.left = sven2.style.right = 0;
             sven2.style.margin = '0px auto 1rem';
