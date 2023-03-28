@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         SudokuPad Sven Magic (lean version)
 // @namespace    http://tampermonkey.net/
-// @version      0.5
+// @version      0.7
 // @description  Add a button that resolves all singles in SudokuPad
 // @author       Chameleon
 // @updateURL    https://github.com/yusitnikov/sudokupad-sven-magic/raw/main/sudokupad-sven-magic-lean.user.js
@@ -128,15 +128,7 @@ window.addEventListener('DOMContentLoaded', () => {
         createButton('Sven it', doMagic, 'url("https://sudokupad.app/images/svencodes_peek.png")');
     }
 
-    if (typeof Framework !== "undefined") {
-        if (Framework.app) {
-            init();
-        } else {
-            const coreStart = window.start;
-            window.start = () => {
-                coreStart();
-                init();
-            }
-        }
+    if (typeof Framework !== "undefined" && Framework.getApp) {
+        Framework.getApp().then(init);
     }
 });
