@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         SudokuPad Sven Magic
 // @namespace    http://tampermonkey.net/
-// @version      0.8
+// @version      0.9
 // @description  Add a button that resolves all singles in SudokuPad
 // @author       Chameleon
 // @updateURL    https://github.com/yusitnikov/sudokupad-sven-magic/raw/main/sudokupad-sven-magic.user.js
@@ -95,7 +95,11 @@ window.addEventListener('DOMContentLoaded', () => {
 
             const isFillableCell = cell => !cell.given && !cell.value && !cell.candidates.length && !cell.pen.some(p => p[0] === 't');
             let fillableCells = selectedCells.filter(isFillableCell);
-            const isUsingSelectedCells = fillableCells.length !== 0 || (Framework.getSetting(selectedOnlySetting.name) && selectedCells.length !== 0);
+            const isUsingSelectedCells = fillableCells.length !== 0
+                // there are selected cells with conflicts - the Mark button could fix them
+                || app.puzzle.check(['pencilmarks']).some(({cells}) => cells.some(cell => selectedCells.includes(cell)))
+                // user chose to mark only the selected cells no matter what in the settings
+                || (Framework.getSetting(selectedOnlySetting.name) && selectedCells.length !== 0);
             if (!isUsingSelectedCells) {
                 fillableCells = cells.filter(isFillableCell);
             }
