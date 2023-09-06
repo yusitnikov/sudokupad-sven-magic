@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         SudokuPad Sven Magic
 // @namespace    http://tampermonkey.net/
-// @version      0.7
+// @version      0.8
 // @description  Add a button that resolves all singles in SudokuPad
 // @author       Chameleon
 // @updateURL    https://github.com/yusitnikov/sudokupad-sven-magic/raw/main/sudokupad-sven-magic.user.js
@@ -95,7 +95,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
             const isFillableCell = cell => !cell.given && !cell.value && !cell.candidates.length && !cell.pen.some(p => p[0] === 't');
             let fillableCells = selectedCells.filter(isFillableCell);
-            const isUsingSelectedCells = fillableCells.length !== 0;
+            const isUsingSelectedCells = fillableCells.length !== 0 || (Framework.getSetting(selectedOnlySetting.name) && selectedCells.length !== 0);
             if (!isUsingSelectedCells) {
                 fillableCells = cells.filter(isFillableCell);
             }
@@ -154,6 +154,14 @@ window.addEventListener('DOMContentLoaded', () => {
             backgroundImage: 'url("https://i.gyazo.com/4080ac270e344efa60f2978db88f6ba6.png")'
         });
         createButton('Sven it', doMagic);
+
+        const selectedOnlySetting = {
+            tag: 'toggle',
+            group: 'gameplay',
+            name: 'markbutton_selected',
+            content: 'Apply Mark button only to selected cells',
+        };
+        Framework.addSetting(selectedOnlySetting);
     }
 
     if (typeof Framework !== "undefined" && Framework.getApp) {
