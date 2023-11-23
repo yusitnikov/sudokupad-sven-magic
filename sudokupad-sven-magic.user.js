@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         SudokuPad Sven Magic
 // @namespace    http://tampermonkey.net/
-// @version      0.9
+// @version      0.10
 // @description  Add a button that resolves all singles in SudokuPad
 // @author       Chameleon
 // @updateURL    https://github.com/yusitnikov/sudokupad-sven-magic/raw/main/sudokupad-sven-magic.user.js
@@ -55,6 +55,15 @@ window.addEventListener('DOMContentLoaded', () => {
             }
         };
 
+        const getCellValue = (cell) => {
+            // "hideclue" flag means that the given digit is not currently visible because of FoW - we should ignore such a given
+            if (cell.given && !cell.hideclue) {
+                return cell.given;
+            }
+
+            return cell.value ?? undefined;
+        };
+
         const cleanUp = (applyToCells = app.grid.getCellList()) => transaction(() => {
             const conflicts = app.puzzle.check(['pencilmarks']);
 
@@ -71,7 +80,7 @@ window.addEventListener('DOMContentLoaded', () => {
             let changed = false;
 
             for (const cell of app.grid.getCellList()) {
-                if (!cell.value && (!cell.given || cell.hideclue) && cell.candidates && cell.candidates.length === 1) {
+                if (!getCellValue(cell) && cell.candidates && cell.candidates.length === 1) {
                     select([cell]);
                     app.act({type: 'value', arg: cell.candidates[0]});
                     changed = true;
@@ -84,16 +93,16 @@ window.addEventListener('DOMContentLoaded', () => {
         const markAll = () => transaction(() => {
             const cells = app.grid.getCellList();
             const selectedCells = [...app.puzzle.selectedCells];
-            const emptyCell = cells.find(cell => (!cell.given || cell.hideclue) && !cell.value);
+            const emptyCell = cells.find(cell => !getCellValue(cell));
             const digits = [
                 ...new Set(cells.flatMap(cell => {
-                    const value = cell.given ?? cell.value ?? undefined;
+                    const value = getCellValue(cell);
                     return value !== undefined ? [value] : [...cell.candidates, ...cell.pencilmarks];
                 })
                     .filter(Boolean))
             ];
 
-            const isFillableCell = cell => (!cell.given || cell.hideclue) && !cell.value && !cell.candidates.length && !cell.pen.some(p => p[0] === 't');
+            const isFillableCell = cell => !getCellValue(cell) && !cell.candidates.length && !cell.pen.some(p => p[0] === 't');
             let fillableCells = selectedCells.filter(isFillableCell);
             const isUsingSelectedCells = fillableCells.length !== 0
                 // there are selected cells with conflicts - the Mark button could fix them
