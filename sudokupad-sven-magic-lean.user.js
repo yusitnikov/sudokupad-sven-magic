@@ -68,7 +68,7 @@ window.addEventListener('DOMContentLoaded', () => {
             let changed = false;
 
             for (const cell of app.grid.getCellList()) {
-                if (!cell.value && !cell.given && cell.candidates && cell.candidates.length === 1) {
+                if (!cell.value && (!cell.given || cell.hideclue) && cell.candidates && cell.candidates.length === 1) {
                     select([cell]);
                     app.act({type: 'value', arg: cell.candidates[0]});
                     changed = true;
@@ -81,7 +81,7 @@ window.addEventListener('DOMContentLoaded', () => {
         const markAll = () => transaction(() => {
             const cells = app.grid.getCellList();
             const selectedCells = [...app.puzzle.selectedCells];
-            const emptyCell = cells.find(cell => !cell.given && !cell.value);
+            const emptyCell = cells.find(cell => (!cell.given || cell.hideclue) && !cell.value);
             const digits = [
                 ...new Set(cells.flatMap(cell => {
                     const value = cell.given ?? cell.value ?? undefined;
@@ -90,7 +90,7 @@ window.addEventListener('DOMContentLoaded', () => {
                     .filter(Boolean))
             ];
 
-            const isFillableCell = cell => !cell.given && !cell.value && !cell.candidates.length && !cell.pen.some(p => p[0] === 't');
+            const isFillableCell = cell => (!cell.given || cell.hideclue) && !cell.value && !cell.candidates.length && !cell.pen.some(p => p[0] === 't');
             let fillableCells = selectedCells.filter(isFillableCell);
             const isUsingSelectedCells = fillableCells.length !== 0;
             if (!isUsingSelectedCells) {
